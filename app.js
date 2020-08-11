@@ -14,7 +14,7 @@ mongoose.connect("mongodb://localhost/blog_app", {
 //Add files from views
 app.set("view engine", "ejs");
 //add files from public directory
-app.set(express.static("public"));
+app.use(express.static(__dirname + '/public'));
 //use body parser
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -29,16 +29,10 @@ var blogSchema = new mongoose.Schema({
 
 var Blog = mongoose.model("Blog", blogSchema);
 
-// Blog.create
-//   title: "Test Blog",
-//   image: "https://live.staticflickr.com/4567/37514240304_1a744f1fce_z.jpg",
-//   body: "This is a post from the Blog",
-// ;
-
-// ROUTES
+//INDEX ROUTE
 app.get("/", function (req, res) {
   res.redirect("/blogs");
-});
+}); 
 
 app.get("/blogs", function (req, res) {
   //RETRIEVE ALL  BLOG FROM DATABASE
@@ -51,10 +45,33 @@ app.get("/blogs", function (req, res) {
   });
 });
 
-// title
-// Image
-// body
-// created
+//NEW ROUTE
+app.get("/blogs/new", function(req, res){
+    res.render("new")
+});
+//CREATE ROUTE
+app.post("/blogs", function(req, res){
+    //create blog
+    Blog.create(req.body.blog, function(err, newBlog){
+        if(err){
+            res.render("new");
+        }else {
+            //then redirect to index page
+            res.redirect("blogs");
+        }
+    });
+});
+
+//SHOW ROUTE
+app.get("/blogs/:id", function(req, res){
+    Blog.findById(req.params.id, function(err, foundBlog){
+        if(err){
+            res.redirect("/blogs");
+        } else {
+            res.render("show", {blog: foundBlog});
+        }
+    });
+});
 
 app.listen(3000, function () {
   console.log("server is up");
