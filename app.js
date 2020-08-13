@@ -1,9 +1,11 @@
 //adding body parser
 var bodyParser = require("body-parser"),
   //adding method override
-  methodOverride = require("method-override");
-//adding mongoose
-(mongoose = require("mongoose")),
+  methodOverride = require("method-override"),
+//adding sanitizer
+expressSanitizer = require("express-sanitizer"),
+  //adding mongoose
+mongoose = require("mongoose")
 mongoose.set('useFindAndModify', false);
   //adding express
   (express = require("express")),
@@ -20,6 +22,8 @@ app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
 //use body parser
 app.use(bodyParser.urlencoded({ extended: true }));
+//use sanitizer
+app.use (expressSanitizer());
 //use method override
 app.use(methodOverride("_method"));
 
@@ -58,6 +62,10 @@ app.get("/blogs/new", function (req, res) {
 //CREATE ROUTE
 app.post("/blogs", function (req, res) {
   //create blog
+  console.log(req.body);
+  console.log("========");
+  console.log(req.body);
+   
   Blog.create(req.body.blog, function (err, newBlog) {
     if (err) {
       res.render("new");
@@ -92,6 +100,8 @@ app.get("/blogs/:id/edit", function (req, res) {
 
 //UPDATE ROUTE
 app.put("/blogs/:id", function (req, res){
+  req.body.blog.body = req.sanitize(req.body.blog.body);
+
   Blog.findByIdAndUpdate(req.params.id, req.body.blog, function(err, updatedBlog){
     if (err){
       res.redirect("/blogs");
