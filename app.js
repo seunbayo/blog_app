@@ -11,7 +11,11 @@ mongoose.set("useFindAndModify", false);
 (express = require("express")), (app = express());
 
 //APP CONFIG
-mongoose.connect("mongodb://localhost/blog_app", {
+var mongoDbUrl = "mongodb://localhost/blog_app"
+if (process.env.MONGODB_URL) {
+  mongoDbUrl = process.env.MONGODB_URL;
+}
+mongoose.connect(mongoDbUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -126,6 +130,6 @@ app.delete("/blogs/:id", function (req, res) {
   });
 });
 
-app.listen(process.env.PORT, process.env.IP, function () {
+app.listen(process.env.PORT, function () {
   console.log("server is up");
 });
