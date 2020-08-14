@@ -2,14 +2,13 @@
 var bodyParser = require("body-parser"),
   //adding method override
   methodOverride = require("method-override"),
-//adding sanitizer
-expressSanitizer = require("express-sanitizer"),
+  //adding sanitizer
+  expressSanitizer = require("express-sanitizer"),
   //adding mongoose
-mongoose = require("mongoose")
-mongoose.set('useFindAndModify', false);
-  //adding express
-  (express = require("express")),
-  (app = express());
+  mongoose = require("mongoose");
+mongoose.set("useFindAndModify", false);
+//adding express
+(express = require("express")), (app = express());
 
 //APP CONFIG
 mongoose.connect("mongodb://localhost/blog_app", {
@@ -23,7 +22,7 @@ app.use(express.static(__dirname + "/public"));
 //use body parser
 app.use(bodyParser.urlencoded({ extended: true }));
 //use sanitizer
-app.use (expressSanitizer());
+app.use(expressSanitizer());
 //use method override
 app.use(methodOverride("_method"));
 
@@ -65,7 +64,7 @@ app.post("/blogs", function (req, res) {
   console.log(req.body);
   console.log("========");
   console.log(req.body);
-   
+
   Blog.create(req.body.blog, function (err, newBlog) {
     if (err) {
       res.render("new");
@@ -99,11 +98,14 @@ app.get("/blogs/:id/edit", function (req, res) {
 });
 
 //UPDATE ROUTE
-app.put("/blogs/:id", function (req, res){
+app.put("/blogs/:id", function (req, res) {
   req.body.blog.body = req.sanitize(req.body.blog.body);
 
-  Blog.findByIdAndUpdate(req.params.id, req.body.blog, function(err, updatedBlog){
-    if (err){
+  Blog.findByIdAndUpdate(req.params.id, req.body.blog, function (
+    err,
+    updatedBlog
+  ) {
+    if (err) {
       res.redirect("/blogs");
     } else {
       res.redirect("/blogs/" + req.params.id);
@@ -111,21 +113,18 @@ app.put("/blogs/:id", function (req, res){
   });
 });
 
-
 //DELETE ROUTE
 
-app.delete("/blogs/:id", function(req, res){
+app.delete("/blogs/:id", function (req, res) {
   //destroy blog
-  Blog.findByIdAndRemove(req.params.id, function(err){
-    if(err){
+  Blog.findByIdAndRemove(req.params.id, function (err) {
+    if (err) {
       res.redirect("/blogs");
     } else {
       res.redirect("/blogs");
     }
   });
 });
-
-
 
 app.listen(3000, function () {
   console.log("server is up");
