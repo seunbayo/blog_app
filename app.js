@@ -57,6 +57,11 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+app.use(function(req, res, next){
+  res.locals.currentUser = req.user;
+  next();
+});
+
 //====================================
 //INDEX ROUTE
 //====================================
@@ -68,7 +73,7 @@ app.get("/blogs", function (req, res) {
   //RETRIEVE ALL  BLOG FROM DATABASE
   Blog.find({}, function (err, blogs) {
     if (err) {
-      console.log("ERROR");
+      console.log(err);
     } else {
       res.render("index", { blogs: blogs });
     }
@@ -108,7 +113,7 @@ app.get("/blogs/:id", function (req, res) {
 });
 
 // EDIT ROUTE
-app.get("/blogs/:id/edit", function (req, res) {
+app.get("/blogs/:id/edit", isLoggedIn, function (req, res) {
   Blog.findById(req.params.id, function (err, foundBlog) {
     if (err) {
       res.redirect("/blogs");
@@ -136,7 +141,7 @@ app.put("/blogs/:id", function (req, res) {
 
 //DELETE ROUTE
 
-app.delete("/blogs/:id", function (req, res) {
+app.delete("/blogs/:id", isLoggedIn, function (req, res) {
   //destroy blog
   Blog.findByIdAndRemove(req.params.id, function (err) {
     if (err) {
@@ -186,6 +191,22 @@ app.post(
   }),
   function (req, res) {}
 );
+
+//LogOut route
+app.get("/logout", function (req, res) {
+  req.logOut()
+  res.redirect("/blogs");
+});
+
+//middleware for must login
+function isLoggedIn(req, res, next){
+  if(req.isAuthenticated()){
+    return next()
+  }
+  res.redirect("/login");
+}
+
+
 
 app.listen(3000, function () {
   console.log("server is up");
