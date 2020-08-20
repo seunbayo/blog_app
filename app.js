@@ -1,17 +1,19 @@
-//adding body parser
 var bodyParser = require("body-parser"),
-  //adding method override
   methodOverride = require("method-override"),
-  //adding sanitizer
   expressSanitizer = require("express-sanitizer"),
+  passport = require("passport"),
+  session = require("express-session"),
+  LocalStrategy = require("passport-local").Strategy,
+  User = require("./models/user"),
+  express = require("express"),
+  app = express(),
   //adding mongoose
   mongoose = require("mongoose");
 mongoose.set("useFindAndModify", false);
-//adding express
-(express = require("express")), (app = express());
 
 //APP CONFIG
-var mongoDbUrl = "mongodb://localhost/blog_app"
+//MONGOOSE CONFIG
+var mongoDbUrl = "mongodb://localhost/blog_app";
 if (process.env.MONGODB_URL) {
   mongoDbUrl = process.env.MONGODB_URL;
 }
@@ -30,8 +32,6 @@ app.use(expressSanitizer());
 //use method override
 app.use(methodOverride("_method"));
 
-//MONGOOSE CONFIG
-
 //creating a schema
 var blogSchema = new mongoose.Schema({
   title: String,
@@ -42,7 +42,24 @@ var blogSchema = new mongoose.Schema({
 
 var Blog = mongoose.model("Blog", blogSchema);
 
+//PASSPORT CONFIGURATION
+app.use(
+  session({
+    secret: "rusty is cute",
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
+//====================================
 //INDEX ROUTE
+//====================================
 app.get("/", function (req, res) {
   res.redirect("/blogs");
 });
@@ -130,6 +147,50 @@ app.delete("/blogs/:id", function (req, res) {
   });
 });
 
-app.listen(process.env.PORT, function () {
+//===================================
+//Auth Route
+//==================================
+
+//show register form
+app.get("/register", function (req, res) {
+  res.render("register");
+});
+
+//Sign up LOGIC
+app.post("/register", function (req, res) {
+  var newUser = new User({ username: req.body.username });
+  User.register(newUser, req.body.password, function (err, user) {
+    if (err) {
+      console.log(err);
+      return res.render("register");
+    }
+    passport.authenticate("local")(req, res, function () {
+      res.redirect("/blogs");
+    });
+  });
+});
+
+//===========
+//LOGIN Logic
+//===========
+// show login form
+app.get("/login", function (req, res) {
+  res.render("login");
+});
+
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    successRedirect: "/blogs",
+    failureRedirect: "/login",
+  }),
+  function (req, res) {}
+);
+
+app.listen(3000, function () {
   console.log("server is up");
 });
+
+// app.listen(process.env.PORT, function () {
+//   console.log("server is up");
+// });
