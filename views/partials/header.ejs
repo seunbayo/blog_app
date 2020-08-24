@@ -14,17 +14,33 @@
   <body>
     <div class="ui fixed inverted menu">
       <div class="ui container">
-        <div class="header item"><i class="code icon"></i>Blog site</div>
-        <% if(!currentUser){ %>
         <a href="/" class="item">Home</a>
-        <a href="/blogs/new" class="item">New post</a>
-        <a href="/login" class="item">Login</a>
-        <a href="/register" class="item">signUp</a>
+        
+        <% if(!currentUser){ %>
+        
+        <div class="right menu">
+            <div class="item">
+                <a href="/login" class="ui button">Login</a>
+            
+            </div>
+            <div class="item">
+                <a href="/register" class="ui primary button">signUp</a>
+
+            </div>
+            
+
+        </div>
+        
         <% } else { %>
         <a href="/" class="item">Home</a>
-        <a href="logout" class="item">Logout</a>
+        <div class="right menu">
+          <a href="/blogs/new" class="item">New post</a>
+          <a class="ui item" href="logout" class="item">Logout</a>
+        </div>
+
         <% } %>
       </div>
     </div>
-  </body>
-</html>
+ 
+
+    

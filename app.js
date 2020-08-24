@@ -57,7 +57,7 @@ passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
-app.use(function(req, res, next){
+app.use(function (req, res, next) {
   res.locals.currentUser = req.user;
   next();
 });
@@ -163,7 +163,10 @@ app.get("/register", function (req, res) {
 
 //Sign up LOGIC
 app.post("/register", function (req, res) {
-  var newUser = new User({ username: req.body.username });
+  var newUser = new User({
+    email: req.body.email,
+    username: req.body.username,
+  });
   User.register(newUser, req.body.password, function (err, user) {
     if (err) {
       console.log(err);
@@ -175,14 +178,13 @@ app.post("/register", function (req, res) {
   });
 });
 
-//===========
-//LOGIN Logic
-//===========
+
 // show login form
 app.get("/login", function (req, res) {
   res.render("login");
 });
 
+//handling login logic
 app.post(
   "/login",
   passport.authenticate("local", {
@@ -194,19 +196,17 @@ app.post(
 
 //LogOut route
 app.get("/logout", function (req, res) {
-  req.logOut()
+  req.logOut();
   res.redirect("/blogs");
 });
 
 //middleware for must login
-function isLoggedIn(req, res, next){
-  if(req.isAuthenticated()){
-    return next()
+function isLoggedIn(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
   }
   res.redirect("/login");
 }
-
-
 
 app.listen(3000, function () {
   console.log("server is up");
