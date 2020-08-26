@@ -178,7 +178,6 @@ app.post("/register", function (req, res) {
   });
 });
 
-
 // show login form
 app.get("/login", function (req, res) {
   res.render("login");
@@ -208,7 +207,11 @@ function isLoggedIn(req, res, next) {
   res.redirect("/login");
 }
 
+var port = 3000;
+if (process.env.PORT) {
+  port = process.env.PORT;
+}
 
-app.listen(process.env.PORT, function () {
+app.listen(port, function () {
   console.log("server is up");
 });
